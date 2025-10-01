@@ -7,6 +7,14 @@ class User {
     return rows;
   }
 
+  static async getUserById(id) {
+    const [rows] = await pool.query(
+      "SELECT id, username, email FROM users WHERE id=?",
+      [id]
+    );
+    return rows[0] || null;
+  }
+
   static async findByEmail(email) {
     try {
       const [rows] = await pool.query(

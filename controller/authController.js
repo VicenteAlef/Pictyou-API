@@ -1,12 +1,20 @@
 import User from "../models/User.js";
 
 const authController = {
-  hello(req, res) {
-    return res.status(200).json({ message: "Hi there!" });
-  },
+  async getUserById(req, res) {
+    try {
+      const id = req.params.id;
+      const user = await User.getUserById(id);
 
-  status(req, res) {
-    return res.status(200).json({ message: "All ok" });
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("Erro ao buscar usuarios:", error);
+      res.status(500).json({ message: "Erro ao buscar usuarios. ", error });
+    }
   },
 
   async listUsers(req, res) {
@@ -19,7 +27,7 @@ const authController = {
     }
   },
 
-  async createUser(req, res) {
+  async signin(req, res) {
     try {
       const { username, email, password } = req.body;
 
@@ -50,6 +58,17 @@ const authController = {
 
       const newUser = await User.createUser(username, email, password);
       res.status(201).json({ newUser });
+
+      req.session.userId = newUser;
+      req.session.userEmail = email;
+
+      res.json({
+        message: "Usuário criado com sucesso",
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+        },
+      });
     } catch (error) {
       console.error("Erro ao criar usuário: ", error);
       return res
