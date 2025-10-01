@@ -1,3 +1,4 @@
+import { json } from "express";
 import pool from "../config/database.js";
 import bcrypt from "bcryptjs";
 
@@ -35,6 +36,11 @@ class User {
       [username, email, hashedPassword]
     );
     return { id: result.insertId, username, email };
+  }
+
+  static async deleteUser(id) {
+    await pool.query("DELETE FROM users WHERE id=?", [id]);
+    return {message: 'Usuário excluido  com sucesso'};
   }
 }
 
